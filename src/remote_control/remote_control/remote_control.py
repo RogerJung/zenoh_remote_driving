@@ -1,0 +1,69 @@
+import zenoh
+import time
+from zenoh_ros_type.autoware_auto_msgs import AckermannControlCommand, LongitudinalCommand, AckermannLateralCommand
+from autoware_auto_control_msgs.msg import AckermannControlCommand
+from Adafruit_PCA9685 import PCA9685
+
+GET_CONTROL_KEY_EXPR = 'external/selected/control_cmd'
+
+# Initialize the PCA9685 using the default address (0x40).
+pwm = PCA9685(address=0x40, busnum=7)
+
+# Set the PWM frequency to control the servo and ESC.
+pwm.set_pwm_freq(60)
+
+class VehicleController():
+    def __init__(self, session, scope, use_bridge_ros2dds=True):
+        self.session = session
+
+        # This section sets the default values for the ESC
+        self.fwdmax = 580
+        self.revmax = 180
+        self.stop = 380  # No throttle value accepted by the ESC
+
+        # This section sets the default values for the steering servo
+        self.steering_value = 380
+        self.steering_init = 380
+        self.steering_max_left = 260
+        self.steering_max_right = 500
+        self.reverse = 0
+        
+        self.topic_prefix = scope
+        self.service_prefix = scope
+        
+        def callback_control_cmd(sample):
+            
+            data = AckermannControlCommand.deserialize(sample.payload)
+            
+            speed = int(data.longitudinal.speed) + self.stop
+            if speed < self.stop and self.reverse >= -40:
+                speed = self.stop + self.reverse
+                reverse -= 1
+            elif speed < self.stop and reverse == -41:
+                speed = self.stop
+                reverse = -42
+            elif speed >= self.stop:
+                reverse = 0
+
+            steering_value = int(-data.lateral.steering_tire_angle * 380) + self.steering_init
+
+            # Set the PCA9685 servo controller (dc motor and steering servo)
+            if self.revmax < speed < self.fwdmax:
+                pwm.set_pwm(0, 0, speed)
+
+            if self.steering_max_left < self.steering_value < self.steering_max_right:
+                pwm.set_pwm(1, 0, steering_value)
+
+            print(f'steering: {steering_value:.2f}, speed: {speed:.2f}')
+        
+        ## Subscriber
+        self.subscriber_control_cmd = self.session.declare_subscriber(GET_CONTROL_KEY_EXPR, callback_control_cmd)
+        
+
+if __name__ == "__main__":
+    session = zenoh.open()
+    vehicleController = VehicleController(session, 'v1')
+    
+    while True:
+        time.sleep(0.1)
+
