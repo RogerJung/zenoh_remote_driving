@@ -60,7 +60,7 @@ class VehicleController():
         self.subscriber_control_cmd = self.session.declare_subscriber(GET_CONTROL_KEY_EXPR, callback_control_cmd)
         
 
-if __name__ == "__main__":
+def main():
     session = zenoh.open()
     vehicleController = VehicleController(session, 'v1')
     
