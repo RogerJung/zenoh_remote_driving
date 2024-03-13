@@ -1,10 +1,34 @@
 import zenoh
 import time
+import json
+import argparse
 from zenoh_ros_type.autoware_auto_msgs import AckermannControlCommand, LongitudinalCommand, AckermannLateralCommand
 from autoware_auto_control_msgs.msg import AckermannControlCommand
 from Adafruit_PCA9685 import PCA9685
 
 GET_CONTROL_KEY_EXPR = 'external/selected/control_cmd'
+
+parser = argparse.ArgumentParser(prog='remote_control')
+parser.add_argument('--connect', '-e', dest='connect',
+                    metavar='ENDPOINT',
+                    action='append',
+                    type=str,
+                    help='Endpoints to connect to.')
+parser.add_argument('--listen', '-l', dest='listen',
+                    metavar='ENDPOINT',
+                    action='append',
+                    type=str,
+                    help='Endpoints to listen on.')
+args = parser.parse_args()
+
+
+conf = zenoh.Config.from_file(
+    args.config) if args.config is not None else zenoh.Config()
+if args.connect is not None:
+    conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(args.connect))
+if args.listen is not None:
+    conf.insert_json5(zenoh.config.LISTEN_KEY, json.dumps(args.listen))
+
 
 # Initialize the PCA9685 using the default address (0x40).
 pwm = PCA9685(address=0x40, busnum=7)
@@ -61,7 +85,8 @@ class VehicleController():
         
 
 def main():
-    session = zenoh.open()
+    
+    session = zenoh.open(conf)
     vehicleController = VehicleController(session, 'v1')
     
     while True:
