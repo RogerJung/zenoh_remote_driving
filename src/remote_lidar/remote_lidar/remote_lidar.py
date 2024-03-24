@@ -66,8 +66,6 @@ class PCDListener(Node):
             self.o3d_pcd = o3d.geometry.PointCloud(vec)
         except:
             self.o3d_pcd = o3d.geometry.PointCloud()
-        
-        # self.o3d_pcd = o3d.geometry.PointCloud(vec)
 
         self.vis.add_geometry(self.o3d_pcd)
         
@@ -84,8 +82,6 @@ class PCDListener(Node):
         #         self.vis.poll_events()
         #         self.vis.update_renderer()
         # flag = True
-        
-
         
 
 
