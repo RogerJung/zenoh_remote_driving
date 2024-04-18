@@ -3,7 +3,7 @@
 ########
 
 # Publish
-ffmpeg -i /dev/video0 -tune zero_latency -f mpegts udp://<address>:8080
+ffmpeg -i /dev/video0 -tune zero_latency -f mpegts tcp://<address>:<port>?listen
 
 # Receive
-ffplay -fflags nobuffer -flags low_delay -f mpegts udp://<address>:8080
+ffplay -fflags nobuffer -flags low_delay -f mpegts tcp://<address>:<port>
