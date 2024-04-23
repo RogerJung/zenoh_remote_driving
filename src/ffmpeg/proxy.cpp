@@ -9,7 +9,7 @@
 #define PORT_A 8001 // 输入端口
 #define PORT_B 8080 // 输出端口
 
-const char* host = "192.168.10.139";
+const char* host = "140.112.31.243";
 
 int main() {
     // 创建输入套接字
@@ -46,6 +46,30 @@ int main() {
     servaddr_b.sin_addr.s_addr = inet_addr(host);
     servaddr_b.sin_port = htons(PORT_B);
 
+    std::cout << "Proxy running. Listening on port " << PORT_A << " and forwarding to port " << PORT_B << std::endl;
+
+    // 绑定输入套接字到端口 B
+    if (bind(sockfd_b, (struct sockaddr *)&servaddr_b, sizeof(servaddr_b)) < 0) {
+        std::cerr << "Error: Couldn't bind socket B." << std::endl;
+        return -1;
+    }
+
+    // 监听输入套接字
+    if (listen(sockfd_b, 10) < 0) {
+        std::cerr << "Error: Couldn't listen on socket B." << std::endl;
+        return -1;
+    }
+
+
+    struct sockaddr_in ffmplay_addr;
+    socklen_t ffmplay_len = sizeof(ffmplay_addr);
+
+    int connfd_b = accept(sockfd_b, (struct sockaddr *)&ffmplay_addr, &ffmplay_len);
+    if (connfd_b < 0) {
+        std::cerr << "Error: Couldn't accept connection on socket B." << std::endl;
+        return -1;
+    }
+
     // 绑定输入套接字到端口 A
     if (bind(sockfd_a, (struct sockaddr *)&servaddr_a, sizeof(servaddr_a)) < 0) {
         std::cerr << "Error: Couldn't bind socket A." << std::endl;
@@ -58,8 +82,6 @@ int main() {
         return -1;
     }
 
-    std::cout << "Proxy running. Listening on port " << PORT_A << " and forwarding to port " << PORT_B << std::endl;
-
     // 接受连接
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -69,18 +91,13 @@ int main() {
         return -1;
     }
 
-    // 连接输出套接字到目标地址
-    if (connect(sockfd_b, (struct sockaddr *)&servaddr_b, sizeof(servaddr_b)) < 0) {
-        std::cerr << "Error: Couldn't connect to socket B." << std::endl;
-        return -1;
-    }
 
     // 开始转发数据
     char buffer[MAX_BUFFER_SIZE];
     ssize_t bytes_read;
     while ((bytes_read = read(connfd_a, buffer, MAX_BUFFER_SIZE)) > 0) {
-        // 发送数据到输出套接字
-        if (write(sockfd_b, buffer, bytes_read) != bytes_read) {
+	    // 发送数据到输出套接字
+        if (write(connfd_b, buffer, bytes_read) != bytes_read) {
             std::cerr << "Error: Couldn't write to socket B." << std::endl;
             return -1;
         }
@@ -92,6 +109,7 @@ int main() {
 
     // 关闭套接字
     close(connfd_a);
+    close(connfd_b);
     close(sockfd_a);
     close(sockfd_b);
 
