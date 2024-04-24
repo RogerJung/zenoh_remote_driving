@@ -6,4 +6,4 @@
 ffmpeg -i /dev/video0 -vf scale=1920:1080 -tune zero_latency -f mpegts tcp://<address>:<port>?connect
 
 # Receive
-ffplay -fflags nobuffer -flags low_delay -f mpegts tcp://<address>:<port>?listen
+ffplay -fflags nobuffer -flags low_delay -f mpegts tcp://<address>:<port>?connect
