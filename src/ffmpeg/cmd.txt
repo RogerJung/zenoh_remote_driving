@@ -1,5 +1,5 @@
 
-# Streaming camera over UDP with ffmpeg in low latency
+# Streaming camera over TCP with ffmpeg in low latency
 ########
 
 # Publish
