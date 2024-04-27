@@ -3,7 +3,7 @@ import time
 import json
 import argparse
 from zenoh_ros_type.autoware_auto_msgs import AckermannControlCommand, LongitudinalCommand, AckermannLateralCommand
-from autoware_auto_control_msgs.msg import AckermannControlCommand
+# from autoware_auto_control_msgs.msg import AckermannControlCommand
 from Adafruit_PCA9685 import PCA9685
 
 GET_CONTROL_KEY_EXPR = 'external/selected/control_cmd'
@@ -22,8 +22,8 @@ parser.add_argument('--listen', '-l', dest='listen',
 args = parser.parse_args()
 
 
-conf = zenoh.Config.from_file(
-    args.config) if args.config is not None else zenoh.Config()
+conf = zenoh.Config()
+
 if args.connect is not None:
     conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(args.connect))
 if args.listen is not None:
@@ -59,6 +59,10 @@ class VehicleController():
             
             data = AckermannControlCommand.deserialize(sample.payload)
             
+            c_time = time.time()
+            recv_time = data.stamp.sec
+            latency = c_time - recv_time
+            
             speed = int(data.longitudinal.speed) + self.stop
             if speed < self.stop and self.reverse >= -40:
                 speed = self.stop + self.reverse
@@ -78,7 +82,7 @@ class VehicleController():
             if self.steering_max_left < self.steering_value < self.steering_max_right:
                 pwm.set_pwm(1, 0, steering_value)
 
-            print(f'steering: {steering_value:.2f}, speed: {speed:.2f}')
+            print(f'latency: {latency:.3f} sec, steering: {steering_value:.2f}, speed: {speed:.2f}')
         
         ## Subscriber
         self.subscriber_control_cmd = self.session.declare_subscriber(GET_CONTROL_KEY_EXPR, callback_control_cmd)

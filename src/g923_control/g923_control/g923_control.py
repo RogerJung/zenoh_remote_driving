@@ -100,10 +100,13 @@ class g923_controller(Node):
     def pub_control(self, steering, throttle):
         ### Steering angle
         self.control_command.lateral.steering_tire_angle = steering
+        
+        ### Timestamp
+        self.control_command.stamp.sec = time.time()
+        self.control_command.stamp.nanosec = 0
 
         ### Pub control
         self.control_command.longitudinal.speed = throttle
-        self.control_command.stamp.nanosec += 1
         self.control_publisher.put(self.control_command.serialize())
 
     def run(self):
@@ -168,11 +171,10 @@ class g923_controller(Node):
                 elif brakeCmd > 1:
                     brakeCmd = 1
                 
-            print(steerCmd, throttleCmd, brakeCmd)
+            print(f"{steerCmd:.3f}, {throttleCmd:.3f}, {brakeCmd:.3f}")
             self.pub_control(steerCmd, throttleCmd * 15)
 
             time.sleep(0.1)
-            
 
 
 def main(args=None):
