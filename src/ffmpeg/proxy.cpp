@@ -5,11 +5,11 @@
 #include <unistd.h>
 #include <cstring>
 
-#define MAX_BUFFER_SIZE 4096
-#define PORT_A 8001 // Input port
+#define MAX_BUFFER_SIZE 8192
+#define PORT_A 8003 // Input port
 #define PORT_B 8080 // Output port
 
-const char* host = "140.112.31.243";
+const char* VEHICLE_IP = "10.10.0.71";
 
 int main() {
     // Create first socket
@@ -26,6 +26,17 @@ int main() {
         return -1;
     }
 
+    int enable = 1;
+    if (setsockopt(sockfd_a, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1) {
+        std::cerr << "Error: Couldn;t set socket A reused." << std::endl;
+        return -1;
+    }
+
+    if (setsockopt(sockfd_b, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1) {
+        std::cerr << "Error: Couldn;t set socket B reused." << std::endl;
+        return -1;
+    }
+
     // Set socket priority to second socket
     int optval =  0;
     if(setsockopt(sockfd_b, SOL_SOCKET, SO_PRIORITY, &optval, sizeof(optval)) < 0){
@@ -36,14 +47,14 @@ int main() {
     struct sockaddr_in servaddr_a;
     memset(&servaddr_a, 0, sizeof(servaddr_a));
     servaddr_a.sin_family = AF_INET;
-    servaddr_a.sin_addr.s_addr = inet_addr(host);
+    servaddr_a.sin_addr.s_addr = inet_addr(VEHICLE_IP);
     servaddr_a.sin_port = htons(PORT_A);
 
     // Set socket address
     struct sockaddr_in servaddr_b;
     memset(&servaddr_b, 0, sizeof(servaddr_b));
     servaddr_b.sin_family = AF_INET;
-    servaddr_b.sin_addr.s_addr = inet_addr(host);
+    servaddr_b.sin_addr.s_addr = inet_addr(VEHICLE_IP);
     servaddr_b.sin_port = htons(PORT_B);
 
     std::cout << "Proxy running. Listening on port " << PORT_A << " and forwarding to port " << PORT_B << std::endl;
@@ -96,9 +107,18 @@ int main() {
     ssize_t bytes_read;
     while ((bytes_read = read(connfd_a, buffer, MAX_BUFFER_SIZE)) > 0) {
 	// Send streaming data from PORT_A to PORT_B
-        if (write(connfd_b, buffer, bytes_read) != bytes_read) {
-            std::cerr << "Error: Couldn't write to socket B." << std::endl;
-            return -1;
+    ssize_t bytes_sent = 0;
+
+        while(bytes_sent < bytes_read) {
+            char *buf_ptr = buffer + bytes_sent;
+            ssize_t sent = write(connfd_b, buf_ptr, bytes_read - bytes_sent);
+            if (sent == 0) {
+                std::cerr << "Error: Remote socket closed" << std::endl;
+            } else if (sent < 0) {
+                std::cerr << "Error: Couldn't write to socket B" << std::endl;
+            } else {
+                bytes_sent += sent;
+            }
         }
     }
     if (bytes_read < 0) {

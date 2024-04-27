@@ -23,7 +23,6 @@ args = parser.parse_args()
 
 
 conf = zenoh.Config()
-
 if args.connect is not None:
     conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(args.connect))
 if args.listen is not None:
