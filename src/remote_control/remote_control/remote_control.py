@@ -58,8 +58,8 @@ class VehicleController():
             
             data = AckermannControlCommand.deserialize(sample.payload)
             
-            c_time = time.time()
-            recv_time = data.stamp.sec
+            c_time = int(time.time() * 1000)
+            recv_time = int(data.stamp.sec * 1000)
             latency = c_time - recv_time
             
             speed = int(data.longitudinal.speed) + self.stop
@@ -81,7 +81,7 @@ class VehicleController():
             if self.steering_max_left < self.steering_value < self.steering_max_right:
                 pwm.set_pwm(1, 0, steering_value)
 
-            print(f'latency: {latency:.3f} sec, steering: {steering_value:.2f}, speed: {speed:.2f}')
+            print(f'latency: {latency} ms, steering: {steering_value:.2f}, speed: {speed:.2f}')
         
         ## Subscriber
         self.subscriber_control_cmd = self.session.declare_subscriber(GET_CONTROL_KEY_EXPR, callback_control_cmd)

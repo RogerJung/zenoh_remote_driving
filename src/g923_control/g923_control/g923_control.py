@@ -102,7 +102,7 @@ class g923_controller(Node):
         self.control_command.lateral.steering_tire_angle = steering
         
         ### Timestamp
-        self.control_command.stamp.sec = time.time()
+        self.control_command.stamp.sec = int(time.time() * 1000)
         self.control_command.stamp.nanosec = 0
 
         ### Pub control
