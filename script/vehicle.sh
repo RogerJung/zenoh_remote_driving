@@ -10,10 +10,6 @@ OPERATOR_IP=10.10.0.73
 # Init. tmux
 tmux kill-server
 
-# Proxy
-tmux new -s proxy -d
-tmux send-keys -t proxy "$HOME/zenoh_remote_driving/src/ffmpeg/proxy" ENTER
-
 # FFMPEG
 tmux new -s bridge_ffmpeg -d
 tmux send-keys -t bridge_ffmpeg "bash $HOME/zenoh_remote_driving/script/ffmpeg.sh" ENTER
