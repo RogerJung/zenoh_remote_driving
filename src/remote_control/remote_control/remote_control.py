@@ -63,14 +63,14 @@ class VehicleController():
             latency = c_time - recv_time
             
             speed = int(data.longitudinal.speed) + self.stop
-            if speed < self.stop and self.reverse >= -40:
+            if speed < self.stop and self.reverse >= -20:
                 speed = self.stop + self.reverse
-                reverse -= 1
-            elif speed < self.stop and reverse == -41:
+                self.reverse -= 1
+            elif speed < self.stop and self.reverse == -21:
                 speed = self.stop
-                reverse = -42
+                self.reverse = -22
             elif speed >= self.stop:
-                reverse = 0
+                self.reverse = 0
 
             steering_value = int(-data.lateral.steering_tire_angle * 380) + self.steering_init
 

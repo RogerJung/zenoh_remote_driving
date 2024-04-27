@@ -111,8 +111,8 @@ class g923_controller(Node):
 
     def run(self):
         joysticks = {}
-
         done = False
+        reverse = False
         while not done:
             # Event processing step.
             # Possible joystick events: JOYAXISMOTION, JOYBALLMOTION, JOYBUTTONDOWN,
@@ -127,9 +127,13 @@ class g923_controller(Node):
                         joystick = joysticks[event.instance_id]
                         if joystick.rumble(0, 0.7, 500):
                             print(f"Rumble effect played on joystick {event.instance_id}")
+                    elif event.button == self._reverse_idx:
+                        reverse = True
 
                 if event.type == pygame.JOYBUTTONUP:
                     print("Joystick button released.")
+                    if event.button == self._reverse_idx:
+                        reverse = False
 
                 # Handle hotplugging
                 if event.type == pygame.JOYDEVICEADDED:
@@ -150,7 +154,6 @@ class g923_controller(Node):
                 # the other. Triggers count as axes.
                 axes = joystick.get_numaxes()
                 jsInputs = [float(self._joystick.get_axis(i)) for i in range(axes)]
-                    
                 # Custom function to map range of inputs [1, -1] to outputs [0, 1] i.e 1 from inputs means nothing is pressed
                 # For the steering, it seems fine as it is
                 K1 = -0.25  # 0.55
@@ -163,6 +166,9 @@ class g923_controller(Node):
                     throttleCmd = 0
                 elif throttleCmd > 1:
                     throttleCmd = 1
+                
+                if reverse:
+                    throttleCmd = throttleCmd * -1
 
                 brakeCmd = 1.6 + (2.05 * math.log10(
                     -0.7 * jsInputs[self._brake_idx] + 1.4) - 1.2) / 0.92
