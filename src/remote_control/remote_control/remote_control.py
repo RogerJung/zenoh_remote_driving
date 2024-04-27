@@ -58,8 +58,8 @@ class VehicleController():
             
             data = AckermannControlCommand.deserialize(sample.payload)
             
-            c_time = int(time.time() * 1000)
-            recv_time = int(data.stamp.sec * 1000)
+            c_time = int(time.time() * 1000) % 100000
+            recv_time = int(data.stamp.sec * 1000) % 100000
             latency = c_time - recv_time
             
             speed = int(data.longitudinal.speed) + self.stop
