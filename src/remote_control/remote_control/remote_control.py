@@ -63,13 +63,12 @@ class VehicleController():
             latency = c_time - recv_time
             
             speed = int(data.longitudinal.speed) + self.stop
-            if speed < self.stop and self.reverse >= -40:
-                speed = self.stop + self.reverse
-                self.reverse -= 1
-            elif speed < self.stop and self.reverse == -41:
-                speed = self.stop
-                self.reverse = -42
-            elif speed >= self.stop:
+            if speed < self.stop:
+                if self.reverse == 0:
+                    self.reverse = 1
+                    pwm.set_pwm(0, 0, 340) # set pwm flag
+                    pwm.set_pwm(0, 0, 380)
+            elif speed > self.stop:
                 self.reverse = 0
 
             steering_value = int(-data.lateral.steering_tire_angle * 380) + self.steering_init
@@ -93,5 +92,5 @@ def main():
     vehicleController = VehicleController(session, 'v1')
     
     while True:
-        time.sleep(0.1)
+        time.sleep(0.05)
 
