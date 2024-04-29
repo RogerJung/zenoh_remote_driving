@@ -21,9 +21,8 @@ make build_proxy
 
 # Run
 
-:::info
-Before execution, the **VEHICLE_IP** and **OPERATOR_IP** variables in the scripts must be manually configured.
-:::
+> [!NOTE]
+> Before execution, the **VEHICLE_IP** and **OPERATOR_IP** variables in the scripts must be manually configured.
 
 - Vehicle
 
