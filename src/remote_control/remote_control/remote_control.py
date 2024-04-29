@@ -63,12 +63,12 @@ class VehicleController():
             latency = c_time - recv_time
             
             speed = int(data.longitudinal.speed) + self.stop
-            if speed < self.stop and self.reverse >= -20:
+            if speed < self.stop and self.reverse >= -40:
                 speed = self.stop + self.reverse
                 self.reverse -= 1
-            elif speed < self.stop and self.reverse == -21:
+            elif speed < self.stop and self.reverse == -41:
                 speed = self.stop
-                self.reverse = -22
+                self.reverse = -42
             elif speed >= self.stop:
                 self.reverse = 0
 
