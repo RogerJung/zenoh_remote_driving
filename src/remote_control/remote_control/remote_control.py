@@ -62,16 +62,19 @@ class VehicleController():
             recv_time = data.stamp.sec
             latency = c_time - recv_time
             
+            steering_value = int(-data.lateral.steering_tire_angle * 380) + self.steering_init
+            
             speed = int(data.longitudinal.speed) + self.stop
             if speed < self.stop:
                 if self.reverse == 0:
                     self.reverse = 1
                     pwm.set_pwm(0, 0, 340) # set pwm flag
                     pwm.set_pwm(0, 0, 380)
+                speed *= 0.9
+                speed = int(speed)
             elif speed > self.stop:
                 self.reverse = 0
 
-            steering_value = int(-data.lateral.steering_tire_angle * 380) + self.steering_init
 
             # Set the PCA9685 servo controller (dc motor and steering servo)
             if self.revmax < speed < self.fwdmax:
@@ -80,7 +83,7 @@ class VehicleController():
             if self.steering_max_left < self.steering_value < self.steering_max_right:
                 pwm.set_pwm(1, 0, steering_value)
 
-            print(f'latency: {latency} ms, steering: {steering_value:.2f}, speed: {speed:.2f}')
+            print(f'reverse" {self.reverse}, latency: {latency} ms, steering: {steering_value:.2f}, speed: {speed:.2f}')
         
         ## Subscriber
         self.subscriber_control_cmd = self.session.declare_subscriber(GET_CONTROL_KEY_EXPR, callback_control_cmd)

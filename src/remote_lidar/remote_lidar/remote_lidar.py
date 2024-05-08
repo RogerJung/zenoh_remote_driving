@@ -23,7 +23,7 @@ class PCDListener(Node):
 
         ## This is for visualization of the received point cloud.
         self.vis = o3d.visualization.Visualizer()
-        self.vis.create_window(width=800, height=600)
+        self.vis.create_window(width=1623, height=855)
         self.o3d_pcd = o3d.geometry.PointCloud()
         self.render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
         self.render_option.background_color = np.array([0.2, 0.2, 0.2])
@@ -31,7 +31,7 @@ class PCDListener(Node):
         
         qos_profile = QoSProfile(
             reliability = rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
-            history = rclpy.qos.HistoryPolicy.KEEP_ALL,
+            history = rclpy.qos.HistoryPolicy.KEEP_LAST,
             depth = 1
         )
 
