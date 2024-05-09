@@ -9,7 +9,7 @@
 #define PORT_A 8003 // Input port
 #define PORT_B 8080 // Output port
 
-const char* VEHICLE_IP = "10.10.0.71";
+const char* VEHICLE_IP = "192.168.225.72";
 
 int main() {
     // Create first socket

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VEHICLE_IP=10.10.0.71
+VEHICLE_IP=192.168.225.72
 
 while true; do
 

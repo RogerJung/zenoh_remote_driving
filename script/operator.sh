@@ -4,8 +4,8 @@ source ./install/setup.bash
 source ./external/autoware_manual_control/install/setup.bash
 source ${HOME}/autoware/install/setup.bash
 
-VEHICLE_IP=10.10.0.71
-OPERATOR_IP=10.10.0.73
+VEHICLE_IP=192.168.225.72
+OPERATOR_IP=192.168.225.73
 
 # Init. tmux
 tmux kill-server
