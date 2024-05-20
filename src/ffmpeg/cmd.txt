@@ -5,7 +5,10 @@
 # Publish
 ffmpeg -i /dev/video0 -vf scale=1920:1080 -tune zero_latency -f mpegts tcp://<address>:<port>?connect
 
-ffmpeg -hwaccel cuda -f v4l2 -input_format mjpeg -framerate 30 -video_size 1920x1080 -i /dev/video0 -tune zero_latency -vf "drawtext=text='%{localtime\:%Y-%m-%d %H\\\\\:%M\\\\\:%S}.%{eif\:(1000 * (t - floor(t)))\:d}':x=10:y=10:fontsize=24:fontcolor=black" -f mpegts tcp://<address>:<port>?listen
+ffmpeg -f v4l2 -input_format mjpeg -framerate 30 -video_size 1920x1080 -i /dev/video0 -tune zero_latency -vf "drawtext=text='%{localtime\:%Y-%m-%d %H\\\\\:%M\\\\\:%S}.%{eif\:(1000 * (t - floor(t)))\:d}':x=10:y=10:fontsize=24:fontcolor=black" -f mpegts tcp://<address>:<port>?listen
 
 # Receive
 ffplay -fflags nobuffer -flags low_delay -f mpegts tcp://<address>:<port>?connect
+
+# Overlap timestamp
+ffmpeg -fflags nobuffer -flags low_delay -f mpegts -i tcp://<address>:<port>?connect -vf "drawtext=text='%{localtime\:%Y-%m-%d %H\\\\\:%M\\\\\:%S}.%{eif\:(1000 * (t - floor(t)))\:d}': fontcolor=white: fontsize=24: box=1: boxcolor=black@0.5: x=w-tw-10: y=10" output.mp4
