@@ -1,3 +1,4 @@
 #!/bin/bash
 
-export VEHICLE_IP="127.0.0.1"
+export VEHICLE_IP="192.168.225.72"
+export OPERATOR_IP="192.168.225.73"
