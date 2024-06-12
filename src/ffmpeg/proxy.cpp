@@ -4,14 +4,25 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
+#include <cstdlib>
+
+using namespace std;
 
 #define MAX_BUFFER_SIZE 8192
 #define PORT_A 8003 // Input port
 #define PORT_B 8080 // Output port
 
-const char* VEHICLE_IP = "192.168.225.72";
-
 int main() {
+
+    const char *VEHICLE_IP = getenv("VEHICLE_IP");
+    string env_var(VEHICLE_IP ? VEHICLE_IP : "");
+    if (env_var.empty()) {
+        cerr << "[ERROR] No such variable found!" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    cout << "VEHICLE_IP : " << env_var << endl;
+
     // Create first socket
     int sockfd_a = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd_a < 0) {
@@ -57,7 +68,8 @@ int main() {
     servaddr_b.sin_addr.s_addr = inet_addr(VEHICLE_IP);
     servaddr_b.sin_port = htons(PORT_B);
 
-    std::cout << "Proxy running. Listening on port " << PORT_A << " and forwarding to port " << PORT_B << std::endl;
+    std::cout << "Listening on port " << PORT_A << " and forwarding to port " << PORT_B << std::endl;
+    std::cout << "Proxy running..." << std::endl;
 
     // Bind the second socket to a specific address
     if (bind(sockfd_b, (struct sockaddr *)&servaddr_b, sizeof(servaddr_b)) < 0) {

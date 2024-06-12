@@ -27,10 +27,12 @@ make build_proxy
 - Vehicle
 
 ```bash=
+source env.sh
 cd zenoh_remote_driving
 ./src/ffmpeg/proxy
 
 # Open another window to execute the following command.
+source env.sh
 bash ./script/vehicle.sh
 ```
 
@@ -38,5 +40,6 @@ bash ./script/vehicle.sh
 
 ```bash=
 cd zenoh_remote_driving
+source env.sh
 bash ./script/operator.sh
 ```

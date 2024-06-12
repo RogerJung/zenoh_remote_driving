@@ -2,9 +2,6 @@
 
 source ${HOME}/repos/F1EIGHT/install/setup.bash
 
-VEHICLE_IP=10.10.0.71
-OPERATOR_IP=10.10.0.73
-
 # Init. tmux
 tmux kill-server
 
