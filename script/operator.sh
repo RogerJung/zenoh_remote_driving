@@ -17,4 +17,4 @@ tmux send-keys -t bridge_autoware "RUST_LOG=info ./external/zenoh-plugin-ros2dds
 ros2 run remote_lidar remote_lidar &
 
 # Control
-sleep 2 && ros2 run g923_control g923_control
+sleep 2 && ros2 run g923_control g923_control -- --connect tcp/${VEHICLE_IP}:8002
